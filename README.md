@@ -33,36 +33,7 @@ El proyecto está estructurado bajo una arquitectura distribuida desacoplada en 
 ## 🔌 Conexiones de Hardware (Pinout)
 
 Para garantizar la estabilidad del sistema, los periféricos y actuadores están conectados estrictamente a los siguientes pines físicos del cabezal GPIO de la Raspberry Pi:
-
-| Componente Periférico | Línea de Conexión | Pin Físico RPi | Mapeo BCM / Software | Función Técnica |
-| --- | --- | --- | --- | --- |
-| **Módulo de Cámara RPi** | Cinta plana dedicada | **FLEX / CSI** | N/A | Captura de fotogramas mediante `rpicam-still`. |
-| **Servo 1 (Alimentador)** | Señal (PWM) <br>
-
-<br> VCC (+5V) <br>
-
-<br> GND (Tierra) | **Pin 11** <br>
-
-<br> **Pin 2** <br>
-
-<br> **Pin 6** | `GPIO 17` <br>
-
-<br> `5V Power` <br>
-
-<br> `Ground` | Controla la compuerta o gatillo de caída física del objeto hacia la zona de análisis. |
-| **Servo 2 (Clasificador)** | Señal (PWM) <br>
-
-<br> VCC (+5V) <br>
-
-<br> GND (Tierra) | **Pin 12** <br>
-
-<br> **Pin 4** <br>
-
-<br> **Pin 9** | `GPIO 18` <br>
-
-<br> `5V Power` <br>
-
-<br> `Ground` | Orienta la rampa deflectora de desvío de acuerdo con la categoría del color detectado. |
+<img width="857" height="432" alt="image" src="https://github.com/user-attachments/assets/6e0ab387-6c0c-467e-a870-23ebea786af3" />
 
 > ⚠️ **Nota de seguridad:** Se recomienda compartir una tierra común (`GND`) robusta entre la Raspberry Pi y las fuentes externas si los servomotores demandan picos elevados de corriente que puedan provocar reinicios o *brownouts* en la placa.
 
