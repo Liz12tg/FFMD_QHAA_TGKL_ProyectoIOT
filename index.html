@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Industrial</title>
+    <style>
+        body { background-color: #f4f7f6; color: #333; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        .grid-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1200px; margin: auto; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; border-left: 5px solid #3498db; }
+        .main-chart { grid-column: span 3; height: 300px; }
+        .sys-info { grid-column: span 1; text-align: left; }
+        .label { color: #7f8c8d; text-transform: uppercase; font-size: 0.7em; font-weight: bold; }
+        .val { font-size: 1.5em; font-weight: bold; margin-top: 5px; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="grid-container">
+        <div class="card"><div class="label">Rojo</div><div class="val" id="count-rojo">0</div></div>
+        <div class="card"><div class="label">Verde</div><div class="val" id="count-verde">0</div></div>
+        <div class="card"><div class="label">Azul</div><div class="val" id="count-azul">0</div></div>
+        <div class="card"><div class="label">Total</div><div class="val" id="count-total">0</div></div>
+        
+        <div class="card main-chart"><canvas id="myChart"></canvas></div>
+        
+        <div class="card sys-info">
+            <div class="label">Estado RPi</div>
+            <div id="sys-data" style="margin-top:10px; font-size: 0.9em; text-align: left;">
+                CPU: <span id="cpu">-</span>%<br>
+                RAM: <span id="mem">-</span>%<br>
+                Temp: <span id="temp">-</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let stats = { ROJO: 0, VERDE: 0, AZUL: 0, TOTAL: 0 };
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: [], datasets: [
+                { label: 'Rojo', borderColor: '#ff4d4d', data: [], fill: false },
+                { label: 'Verde', borderColor: '#2ecc71', data: [], fill: false },
+                { label: 'Azul', borderColor: '#3498db', data: [], fill: false }
+            ]},
+            options: { responsive: true, maintainAspectRatio: false, animation: { duration: 0 } }
+        });
+
+        window.onload = () => {
+            fetch('/historial').then(r => r.json()).then(data => {
+                data.reverse().forEach(item => {
+                    const color = item[0].toUpperCase();
+                    stats[color]++; stats.TOTAL++;
+                    chart.data.labels.push(item[1].slice(11,19));
+                    chart.data.datasets.forEach(d => d.data.push(d.label.toUpperCase() === color ? stats[d.label.toUpperCase()] : (d.data[d.data.length - 1] || 0)));
+                });
+                document.getElementById('count-rojo').innerText = stats.ROJO;
+                document.getElementById('count-verde').innerText = stats.VERDE;
+                document.getElementById('count-azul').innerText = stats.AZUL;
+                document.getElementById('count-total').innerText = stats.TOTAL;
+                chart.update();
+            });
+            setInterval(() => {
+                fetch('/sysinfo').then(r => r.json()).then(data => {
+                    document.getElementById('cpu').innerText = data.cpu;
+                    document.getElementById('mem').innerText = data.mem;
+                    document.getElementById('temp').innerText = data.temp;
+                });
+            }, 5000);
+        };
+
+        client = new Paho.MQTT.Client("192.168.1.72", 9001, "dash_" + parseInt(Math.random()*1000));
+        client.onMessageArrived = (msg) => {
+            const color = msg.payloadString.toUpperCase();
+            stats[color]++; stats.TOTAL++;
+            document.getElementById(`count-${color.toLowerCase()}`).innerText = stats[color];
+            document.getElementById('count-total').innerText = stats.TOTAL;
+            chart.data.labels.push(new Date().toLocaleTimeString().slice(0,8));
+            chart.data.datasets.forEach(d => d.data.push(d.label.toUpperCase() === color ? stats[d.label.toUpperCase()] : (d.data[d.data.length - 1] || 0)));
+            if (chart.data.labels.length > 20) { chart.data.labels.shift(); chart.data.datasets.forEach(d => d.data.shift()); }
+            chart.update();
+        };
+        client.connect({ onSuccess: () => client.subscribe("iot/sensor/color") });
+    </script>
+</body>
+</html>
