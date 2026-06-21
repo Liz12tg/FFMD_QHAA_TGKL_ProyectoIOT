@@ -131,6 +131,7 @@ Este script expone la API REST de telemetría histórica y estadísticas del sis
 python3 query_db.py
 
 ```
+<img width="628" height="73" alt="image" src="https://github.com/user-attachments/assets/a3fb74ef-d44e-46ad-8eb9-05ec9a7eeae7" />
 
 ### Paso 2: Iniciar el nodo Actuador (Suscriptor)
 
@@ -140,6 +141,8 @@ Mantiene a los servomotores escuchando de manera asíncrona las órdenes enviada
 python3 src/actuador.py
 
 ```
+<img width="516" height="153" alt="image" src="https://github.com/user-attachments/assets/a483b6ee-49c5-4ce7-973f-908c6769d054" />
+
 
 ### Paso 3: Lanzar el script de análisis principal (Publicador)
 
@@ -149,12 +152,15 @@ Toma las capturas con la cámara, calcula el canal *Hue* en OpenCV, inserta de m
 python3 src/main.py
 
 ```
+<img width="1600" height="535" alt="image" src="https://github.com/user-attachments/assets/ce6a0a0f-35e5-4c3c-b02e-3873efedce6a" />
 
 ### Paso 4: Visualización
 
 Abre el archivo `index.html` en cualquier navegador web dentro de la misma red local (`http://192.168.1.72:8000` o mapeado en tu servidor web).
 
 ---
+<img width="1511" height="620" alt="image" src="https://github.com/user-attachments/assets/53a0e88b-b024-4a01-a277-6c5847824144" />
+
 
 ## 🧪 Suite de Validación (Pruebas Unitarias)
 
